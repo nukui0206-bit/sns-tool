@@ -15,8 +15,14 @@
 
         <div class="app-main">
             <header class="app-topbar">
-                <div class="fw-semibold">
-                    @isset($header){{ $header }}@endisset
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary topbar-toggler d-lg-none"
+                            data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
+                        ☰
+                    </button>
+                    <div class="fw-semibold">
+                        @isset($header){{ $header }}@endisset
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <a href="{{ route('profile.edit') }}" class="text-decoration-none text-dark small">

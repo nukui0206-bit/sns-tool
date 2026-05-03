@@ -1,5 +1,6 @@
 import './bootstrap';
 import '../sass/app.scss';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Bootstrap 5（JS bundle に Popper を含む）
 import * as bootstrap from 'bootstrap';

@@ -1,24 +1,25 @@
 @php
-    // Phase 0 時点ではダッシュボード以外スタブリンク。各 Phase で route を実装したら有効化される。
+    // Phase 1 着手中。route が解決可能なものは自動で有効リンクに変わる。
     $navItems = [
-        ['label' => 'ダッシュボード',     'route' => 'dashboard'],
-        ['label' => 'クライアント管理',   'route' => null, 'note' => 'Phase 1'],
-        ['label' => '投稿管理',           'route' => null, 'note' => 'Phase 3'],
-        ['label' => '投稿カレンダー',     'route' => null, 'note' => 'Phase 5'],
-        ['label' => '連携アカウント',     'route' => null, 'note' => 'Phase 2'],
+        ['label' => 'ダッシュボード', 'route' => 'dashboard', 'icon' => 'bi-speedometer2'],
+        ['label' => 'クライアント管理', 'route' => 'clients.index', 'match' => 'clients.*', 'icon' => 'bi-people'],
+        ['label' => '投稿管理', 'route' => null, 'note' => 'Phase 3', 'icon' => 'bi-pencil-square'],
+        ['label' => '投稿カレンダー', 'route' => null, 'note' => 'Phase 5', 'icon' => 'bi-calendar'],
+        ['label' => '連携アカウント', 'route' => null, 'note' => 'Phase 2', 'icon' => 'bi-link-45deg'],
     ];
 
     $adminItems = [
-        ['label' => '失敗ジョブ', 'route' => null, 'note' => 'Phase 10'],
+        ['label' => '失敗ジョブ', 'route' => null, 'note' => 'Phase 10', 'icon' => 'bi-exclamation-triangle'],
     ];
 @endphp
-<aside class="app-sidebar">
-    <div class="brand">
-        <a href="{{ route('dashboard') }}" class="text-decoration-none text-white">
+<aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">
+    <div class="brand d-flex align-items-center justify-content-between">
+        <a href="{{ route('dashboard') }}" class="text-decoration-none text-white" id="appSidebarLabel">
             {{ config('app.name', 'SNS Tool') }}
         </a>
+        <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close"></button>
     </div>
-    <nav class="nav flex-column mt-2">
+    <nav class="nav flex-column">
         @foreach ($navItems as $item)
             @php
                 $href = $item['route'] && \Illuminate\Support\Facades\Route::has($item['route'])
@@ -27,27 +28,27 @@
                 $matchPattern = $item['match'] ?? $item['route'] ?? null;
                 $active = $matchPattern && request()->routeIs($matchPattern);
             @endphp
-            <a href="{{ $href }}" class="nav-link {{ $active ? 'active' : '' }} {{ $href === '#' ? 'opacity-50' : '' }}">
-                {{ $item['label'] }}
+            <a href="{{ $href }}" class="nav-link {{ $active ? 'active' : '' }} {{ $href === '#' ? 'is-stub' : '' }}">
+                <i class="bi {{ $item['icon'] ?? 'bi-circle' }}"></i>
+                <span>{{ $item['label'] }}</span>
                 @if (!empty($item['note']))
-                    <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;">{{ $item['note'] }}</span>
+                    <span class="badge" style="font-size: 0.65rem;">{{ $item['note'] }}</span>
                 @endif
             </a>
         @endforeach
 
-        <div class="text-muted text-uppercase small mt-4 mb-1 px-3" style="font-size: 0.7rem; letter-spacing: 0.05em;">
-            運用
-        </div>
+        <div class="section-title">運用</div>
         @foreach ($adminItems as $item)
             @php
                 $href = $item['route'] && \Illuminate\Support\Facades\Route::has($item['route'])
                     ? route($item['route'])
                     : '#';
             @endphp
-            <a href="{{ $href }}" class="nav-link {{ $href === '#' ? 'opacity-50' : '' }}">
-                {{ $item['label'] }}
+            <a href="{{ $href }}" class="nav-link {{ $href === '#' ? 'is-stub' : '' }}">
+                <i class="bi {{ $item['icon'] ?? 'bi-circle' }}"></i>
+                <span>{{ $item['label'] }}</span>
                 @if (!empty($item['note']))
-                    <span class="badge bg-secondary ms-1" style="font-size: 0.65rem;">{{ $item['note'] }}</span>
+                    <span class="badge" style="font-size: 0.65rem;">{{ $item['note'] }}</span>
                 @endif
             </a>
         @endforeach
