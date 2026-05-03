@@ -1,0 +1,91 @@
+// SNS Tool — global styles
+// Bootstrap 5 SCSS (full import)。後で必要モジュール限定importに切替可。
+
+@import "bootstrap/scss/bootstrap";
+
+// ===== サイドバー / 管理画面共通 =====
+:root {
+    --app-sidebar-width: 240px;
+    --app-sidebar-bg: #1f2937;
+    --app-sidebar-fg: #e5e7eb;
+    --app-sidebar-active-bg: #374151;
+    --app-sidebar-active-fg: #ffffff;
+}
+
+body {
+    background-color: #f6f8fa;
+}
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-sidebar {
+    width: var(--app-sidebar-width);
+    background-color: var(--app-sidebar-bg);
+    color: var(--app-sidebar-fg);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.app-sidebar .brand {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-sidebar .nav-link {
+    color: var(--app-sidebar-fg);
+    padding: 0.6rem 1.25rem;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+}
+
+.app-sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+}
+
+.app-sidebar .nav-link.active {
+    background-color: var(--app-sidebar-active-bg);
+    color: var(--app-sidebar-active-fg);
+    border-left-color: var(--bs-primary);
+}
+
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.app-content {
+    padding: 1.5rem;
+}
+
+// ===== ゲスト（ログイン等）画面 =====
+.guest-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f6f8fa;
+}
+
+.guest-card {
+    width: 100%;
+    max-width: 420px;
+}
