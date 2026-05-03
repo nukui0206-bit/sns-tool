@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Post;
 use App\Models\SocialAccount;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -25,10 +26,18 @@ class PostController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $defaults = ['status' => Post::STATUS_DRAFT];
+
+        // FullCalendar の日付クリックから ?scheduled_at=... で来た場合、初期値にセット。
+        if ($request->filled('scheduled_at')) {
+            $defaults['scheduled_at'] = $request->input('scheduled_at');
+            $defaults['status'] = Post::STATUS_SCHEDULED;
+        }
+
         return view('posts.create', [
-            'post' => new Post(['status' => Post::STATUS_DRAFT]),
+            'post' => new Post($defaults),
             'clients' => Client::orderBy('name')->get(),
             'socialAccounts' => $this->loadSocialAccountsByClient(),
         ]);
@@ -72,6 +81,75 @@ class PostController extends Controller
         return redirect()
             ->route('posts.index')
             ->with('status', '投稿を削除しました。');
+    }
+
+    /**
+     * FullCalendar 用 JSON。指定範囲（start..end）の scheduled_at を持つ投稿を返す。
+     */
+    public function calendarEvents(Request $request): JsonResponse
+    {
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $posts = Post::query()
+            ->with(['client', 'socialAccount'])
+            ->whereNotNull('scheduled_at')
+            ->when($start, fn ($q) => $q->where('scheduled_at', '>=', $start))
+            ->when($end, fn ($q) => $q->where('scheduled_at', '<', $end))
+            ->get();
+
+        $events = $posts->map(function (Post $p) {
+            $clientName = $p->client?->name ?? '—';
+            $excerpt = mb_strlen($p->content) > 30
+                ? mb_substr($p->content, 0, 30) . '…'
+                : $p->content;
+
+            return [
+                'id' => $p->id,
+                'title' => "{$clientName}: {$excerpt}",
+                'start' => $p->scheduled_at?->toIso8601String(),
+                'color' => $this->statusColor($p->status),
+                // draft / scheduled のみドラッグ移動を許可
+                'editable' => in_array($p->status, [Post::STATUS_DRAFT, Post::STATUS_SCHEDULED], true),
+            ];
+        });
+
+        return response()->json($events);
+    }
+
+    /**
+     * FullCalendar のドラッグ移動による scheduled_at 更新。
+     * draft / scheduled のみ更新を受け付ける（公開済 / 失敗は再スケジュール禁止）。
+     */
+    public function updateSchedule(Request $request, Post $post): JsonResponse
+    {
+        if (! in_array($post->status, [Post::STATUS_DRAFT, Post::STATUS_SCHEDULED], true)) {
+            return response()->json([
+                'ok' => false,
+                'error' => '公開済 / 失敗の投稿は再スケジュールできません。',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'scheduled_at' => ['required', 'date'],
+        ]);
+
+        $post->update([
+            'scheduled_at' => $validated['scheduled_at'],
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function statusColor(string $status): string
+    {
+        return match ($status) {
+            Post::STATUS_DRAFT     => '#6b7280',
+            Post::STATUS_SCHEDULED => '#2563eb',
+            Post::STATUS_POSTED    => '#10b981',
+            Post::STATUS_FAILED    => '#dc2626',
+            default                => '#6c757d',
+        };
     }
 
     /**

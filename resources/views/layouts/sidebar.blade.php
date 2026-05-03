@@ -4,7 +4,7 @@
         ['label' => 'ダッシュボード', 'route' => 'dashboard', 'icon' => 'bi-speedometer2'],
         ['label' => 'クライアント管理', 'route' => 'clients.index', 'match' => 'clients.*', 'icon' => 'bi-people'],
         ['label' => '投稿管理', 'route' => 'posts.index', 'match' => 'posts.*', 'icon' => 'bi-pencil-square'],
-        ['label' => '投稿カレンダー', 'route' => null, 'note' => 'Phase 5', 'icon' => 'bi-calendar'],
+        ['label' => '投稿カレンダー', 'route' => 'calendar.index', 'match' => 'calendar.*', 'icon' => 'bi-calendar'],
         ['label' => '連携アカウント', 'route' => 'social_accounts.index', 'match' => 'social_accounts.*', 'icon' => 'bi-link-45deg'],
     ];
 

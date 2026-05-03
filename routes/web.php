@@ -25,6 +25,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('clients', ClientController::class);
     Route::resource('posts', PostController::class)->except(['show']);
     Route::resource('social_accounts', SocialAccountController::class);
+
+    // Phase 5: 投稿カレンダー
+    Route::view('/calendar', 'calendar.index')->name('calendar.index');
+    Route::get('/calendar/events', [PostController::class, 'calendarEvents'])->name('calendar.events');
+    Route::patch('/posts/{post}/schedule', [PostController::class, 'updateSchedule'])->name('posts.schedule');
 });
 
 require __DIR__.'/auth.php';
