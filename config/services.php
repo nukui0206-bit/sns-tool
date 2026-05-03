@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'social_poster' => [
+        // 'stub' | 'instagram' | 'tiktok' （未指定時は stub 扱い）
+        'driver' => env('SOCIAL_POSTER_DRIVER', 'stub'),
+    ],
+
 ];
