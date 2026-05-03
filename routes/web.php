@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SocialAccountController;
 use App\Models\Client;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('clients', ClientController::class);
     Route::resource('posts', PostController::class)->except(['show']);
+    Route::resource('social_accounts', SocialAccountController::class);
 });
 
 require __DIR__.'/auth.php';
