@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Client;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,7 +11,9 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('dashboard', [
+        'clientsCount' => Client::count(),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -18,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('clients', ClientController::class);
+    Route::resource('posts', PostController::class)->only(['index']);
 });
 
 require __DIR__.'/auth.php';
