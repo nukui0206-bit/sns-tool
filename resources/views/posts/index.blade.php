@@ -12,7 +12,7 @@
                 <thead>
                     <tr>
                         <th style="width: 64px;">ID</th>
-                        <th style="width: 200px;">クライアント</th>
+                        <th style="width: 220px;">クライアント / 投稿先</th>
                         <th>投稿内容</th>
                         <th class="d-none d-md-table-cell" style="width: 170px;">投稿予定日時</th>
                         <th class="text-center" style="width: 100px;">ステータス</th>
@@ -27,6 +27,25 @@
                                 <span class="fw-semibold">{{ $post->client->name ?? '—' }}</span>
                                 @if ($post->client?->business_name)
                                     <div class="text-muted small">{{ $post->client->business_name }}</div>
+                                @endif
+                                @if ($post->socialAccount)
+                                    @php
+                                        $platformIcon = match ($post->socialAccount->platform) {
+                                            'instagram' => 'bi-instagram',
+                                            'tiktok' => 'bi-tiktok',
+                                            'threads' => 'bi-at',
+                                            'youtube' => 'bi-youtube',
+                                            default => 'bi-globe',
+                                        };
+                                    @endphp
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi {{ $platformIcon }}"></i>
+                                        {{ $post->socialAccount->account_name }}
+                                    </div>
+                                @else
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-dash-circle"></i> 投稿先未指定
+                                    </div>
                                 @endif
                             </td>
                             <td class="small">

@@ -19,6 +19,9 @@ class StubPoster implements PosterInterface
         Log::info('[StubPoster] publish', [
             'post_id' => $post->id,
             'client_id' => $post->client_id,
+            'social_account_id' => $post->social_account_id,
+            'platform' => $post->socialAccount?->platform,
+            'account_name' => $post->socialAccount?->account_name,
             'content_excerpt' => Str::limit($post->content, 80),
             'external_post_id' => $externalId,
         ]);

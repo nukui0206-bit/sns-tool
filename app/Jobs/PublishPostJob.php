@@ -29,7 +29,7 @@ class PublishPostJob implements ShouldQueue
 
     public function handle(PosterInterface $poster): void
     {
-        $post = Post::find($this->postId);
+        $post = Post::with(['client', 'socialAccount'])->find($this->postId);
 
         if (! $post) {
             Log::warning('[PublishPostJob] post not found', ['post_id' => $this->postId]);

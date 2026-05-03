@@ -24,6 +24,7 @@ class Post extends Model
 
     protected $fillable = [
         'client_id',
+        'social_account_id',
         'content',
         'scheduled_at',
         'status',
@@ -36,6 +37,11 @@ class Post extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function socialAccount(): BelongsTo
+    {
+        return $this->belongsTo(SocialAccount::class);
     }
 
     public function statusLabel(): string

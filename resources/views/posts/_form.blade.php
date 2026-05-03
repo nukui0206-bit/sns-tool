@@ -1,6 +1,7 @@
 @php
     /** @var \App\Models\Post $post */
     /** @var \Illuminate\Support\Collection $clients */
+    /** @var \Illuminate\Support\Collection $socialAccounts */  // groupBy(client_id) 済み
     $isEdit = $post->exists;
     $allowedStatuses = [
         \App\Models\Post::STATUS_DRAFT     => \App\Models\Post::STATUSES[\App\Models\Post::STATUS_DRAFT],
@@ -10,6 +11,7 @@
         'scheduled_at',
         $post->scheduled_at?->format('Y-m-d\TH:i')
     );
+    $selectedSocialAccountId = (int) old('social_account_id', $post->social_account_id);
 @endphp
 
 <form method="POST" action="{{ $isEdit ? route('posts.update', $post) : route('posts.store') }}">
@@ -31,6 +33,30 @@
                 @endforeach
             </select>
             @error('client_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+        </div>
+
+        <div class="col-md-6">
+            <label for="social_account_id" class="form-label">投稿先アカウント</label>
+            <select id="social_account_id" name="social_account_id"
+                class="form-select @error('social_account_id') is-invalid @enderror">
+                <option value="">指定しない（下書き等）</option>
+                @foreach ($socialAccounts as $clientId => $accounts)
+                    @php $clientLabel = $accounts->first()->client?->name ?? "Client #{$clientId}"; @endphp
+                    <optgroup label="{{ $clientLabel }}">
+                        @foreach ($accounts as $sa)
+                            <option value="{{ $sa->id }}" data-client-id="{{ $sa->client_id }}"
+                                @selected($selectedSocialAccountId === $sa->id)>
+                                {{ \App\Models\SocialAccount::PLATFORMS[$sa->platform] ?? $sa->platform }}
+                                — {{ $sa->account_name }}
+                            </option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
+            </select>
+            <div class="form-text">
+                クライアントに紐付くアカウントのみ選択可能。指定がない場合は下書き／後から決める扱い。
+            </div>
+            @error('social_account_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
         <div class="col-md-6">
