@@ -3,6 +3,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <p class="text-muted small mb-0">登録されている投稿の一覧です。</p>
+        <a href="{{ route('posts.create') }}" class="btn btn-primary">＋ 新規投稿</a>
     </div>
 
     <div class="card">
@@ -15,7 +16,7 @@
                         <th>投稿内容</th>
                         <th class="d-none d-md-table-cell" style="width: 170px;">投稿予定日時</th>
                         <th class="text-center" style="width: 100px;">ステータス</th>
-                        <th class="text-end" style="width: 120px;">操作</th>
+                        <th class="text-end" style="width: 160px;">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,7 +29,11 @@
                                     <div class="text-muted small">{{ $post->client->business_name }}</div>
                                 @endif
                             </td>
-                            <td class="small">{{ \Illuminate\Support\Str::limit($post->content, 60) }}</td>
+                            <td class="small">
+                                <a href="{{ route('posts.edit', $post) }}" class="text-decoration-none">
+                                    {{ \Illuminate\Support\Str::limit($post->content, 60) }}
+                                </a>
+                            </td>
                             <td class="small text-muted d-none d-md-table-cell">
                                 {{ $post->scheduled_at?->format('Y-m-d H:i') ?? '—' }}
                             </td>
@@ -44,12 +49,20 @@
                                 @endphp
                                 <span class="badge {{ $badgeClass }}">{{ $post->statusLabel() }}</span>
                             </td>
-                            <td class="text-end text-muted small">—</td>
+                            <td class="text-end">
+                                <a href="{{ route('posts.edit', $post) }}" class="btn btn-sm btn-outline-secondary">編集</a>
+                                <form method="POST" action="{{ route('posts.destroy', $post) }}" class="d-inline"
+                                      onsubmit="return confirm('この投稿を削除します。よろしいですか？');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">削除</button>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
-                                まだ投稿が登録されていません。
+                                まだ投稿が登録されていません。<a href="{{ route('posts.create') }}">最初の投稿を登録</a>
                             </td>
                         </tr>
                     @endforelse
