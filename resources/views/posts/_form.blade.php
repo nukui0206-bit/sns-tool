@@ -78,7 +78,12 @@
         </div>
 
         <div class="col-12">
-            <label for="content" class="form-label">投稿内容 <span class="text-danger">*</span></label>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="content" class="form-label mb-0">投稿内容 <span class="text-danger">*</span></label>
+                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#aiGenerateModal">
+                    <i class="bi bi-magic"></i> AI下書き生成
+                </button>
+            </div>
             <textarea id="content" name="content" rows="6" required
                 class="form-control @error('content') is-invalid @enderror">{{ old('content', $post->content) }}</textarea>
             @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -92,3 +97,115 @@
         </button>
     </div>
 </form>
+
+{{-- Phase 6: AI 下書き生成モーダル --}}
+<div class="modal fade" id="aiGenerateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-magic"></i> AI下書き生成</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="ai_prompt" class="form-label">どんな投稿を作りたいですか？</label>
+                    <textarea id="ai_prompt" rows="3" class="form-control"
+                        placeholder="例：新商品のキャンペーン告知、週末のイベント案内、フォロワー向けのお礼メッセージ"></textarea>
+                    <div class="form-text">
+                        現在は <strong>Stub 実装</strong>（サンプル文を返すだけ）。
+                        Phase 7 で OpenAI / Claude に差し替え予定。
+                    </div>
+                </div>
+
+                <div id="ai_result_wrapper" class="d-none">
+                    <label for="ai_result" class="form-label">生成結果</label>
+                    <textarea id="ai_result" rows="8" class="form-control" readonly></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="ai_generate_btn">
+                    <i class="bi bi-stars"></i> 生成する
+                </button>
+                <button type="button" class="btn btn-success d-none" id="ai_apply_btn">
+                    <i class="bi bi-check2"></i> 投稿内容に貼り付け
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+(function () {
+    const generateUrl = @json(route('posts.ai_generate'));
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const generateBtn = document.getElementById('ai_generate_btn');
+        if (!generateBtn) return;
+
+        const promptInput = document.getElementById('ai_prompt');
+        const resultWrapper = document.getElementById('ai_result_wrapper');
+        const resultTextarea = document.getElementById('ai_result');
+        const applyBtn = document.getElementById('ai_apply_btn');
+        const contentTextarea = document.getElementById('content');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        generateBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                alert('プロンプトを入力してください。');
+                return;
+            }
+
+            const originalText = generateBtn.innerHTML;
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>生成中...';
+
+            try {
+                const res = await fetch(generateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ prompt }),
+                    credentials: 'same-origin',
+                });
+
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.message ?? `HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                resultTextarea.value = data.content ?? '';
+                resultWrapper.classList.remove('d-none');
+                applyBtn.classList.remove('d-none');
+            } catch (e) {
+                alert('生成に失敗しました：' + e.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = originalText;
+            }
+        });
+
+        applyBtn.addEventListener('click', () => {
+            if (contentTextarea && resultTextarea.value) {
+                contentTextarea.value = resultTextarea.value;
+            }
+            const modalEl = document.getElementById('aiGenerateModal');
+            const modal = window.bootstrap?.Modal.getInstance(modalEl);
+            modal?.hide();
+
+            // リセット
+            promptInput.value = '';
+            resultTextarea.value = '';
+            resultWrapper.classList.add('d-none');
+            applyBtn.classList.add('d-none');
+        });
+    });
+})();
+</script>
+@endpush

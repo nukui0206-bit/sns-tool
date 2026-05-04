@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/calendar/events', [PostController::class, 'calendarEvents'])->name('calendar.events');
     Route::patch('/posts/{post}/schedule', [PostController::class, 'updateSchedule'])->name('posts.schedule');
 
+    // Phase 6: AI 文案生成
+    Route::post('/posts/ai-generate', [PostController::class, 'aiGenerate'])->name('posts.ai_generate');
+
     // Phase 10: 失敗ジョブ管理
     Route::get('/failed_jobs', [FailedJobController::class, 'index'])->name('failed_jobs.index');
     Route::delete('/failed_jobs', [FailedJobController::class, 'destroyAll'])->name('failed_jobs.destroy_all');

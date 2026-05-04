@@ -40,4 +40,11 @@ return [
         'driver' => env('SOCIAL_POSTER_DRIVER', 'stub'),
     ],
 
+    'ai_copywriter' => [
+        // 'stub' | 'openai' | 'claude' （未指定時は stub 扱い）
+        'driver' => env('AI_COPYWRITER_DRIVER', 'stub'),
+        'openai_api_key' => env('OPENAI_API_KEY'),
+        'anthropic_api_key' => env('ANTHROPIC_API_KEY'),
+    ],
+
 ];

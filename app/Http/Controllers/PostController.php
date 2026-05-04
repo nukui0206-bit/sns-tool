@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Post;
 use App\Models\SocialAccount;
+use App\Services\AiCopywriter\AiCopywriterInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -139,6 +140,23 @@ class PostController extends Controller
         ]);
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Phase 6: AI 文案生成。プロンプトから AiCopywriterInterface 経由で本文を返す。
+     */
+    public function aiGenerate(Request $request, AiCopywriterInterface $ai): JsonResponse
+    {
+        $validated = $request->validate([
+            'prompt' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $content = $ai->generate($validated['prompt']);
+
+        return response()->json([
+            'ok' => true,
+            'content' => $content,
+        ]);
     }
 
     private function statusColor(string $status): string
