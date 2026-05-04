@@ -9,7 +9,7 @@
     ];
 
     $adminItems = [
-        ['label' => '失敗ジョブ', 'route' => null, 'note' => 'Phase 10', 'icon' => 'bi-exclamation-triangle'],
+        ['label' => '失敗ジョブ', 'route' => 'failed_jobs.index', 'match' => 'failed_jobs.*', 'icon' => 'bi-exclamation-triangle'],
     ];
 @endphp
 <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">

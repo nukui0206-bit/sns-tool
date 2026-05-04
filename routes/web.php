@@ -1,21 +1,20 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FailedJobController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocialAccountController;
-use App\Models\Client;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard', [
-        'clientsCount' => Client::count(),
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,6 +29,13 @@ Route::middleware('auth')->group(function () {
     Route::view('/calendar', 'calendar.index')->name('calendar.index');
     Route::get('/calendar/events', [PostController::class, 'calendarEvents'])->name('calendar.events');
     Route::patch('/posts/{post}/schedule', [PostController::class, 'updateSchedule'])->name('posts.schedule');
+
+    // Phase 10: 失敗ジョブ管理
+    Route::get('/failed_jobs', [FailedJobController::class, 'index'])->name('failed_jobs.index');
+    Route::delete('/failed_jobs', [FailedJobController::class, 'destroyAll'])->name('failed_jobs.destroy_all');
+    Route::get('/failed_jobs/{id}', [FailedJobController::class, 'show'])->name('failed_jobs.show');
+    Route::delete('/failed_jobs/{id}', [FailedJobController::class, 'destroy'])->name('failed_jobs.destroy');
+    Route::post('/failed_jobs/{id}/retry', [FailedJobController::class, 'retry'])->name('failed_jobs.retry');
 });
 
 require __DIR__.'/auth.php';
